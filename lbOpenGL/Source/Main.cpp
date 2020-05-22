@@ -7,6 +7,10 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+#include "GLM/matrix.hpp"
+#include "GLM/gtx/rotate_vector.hpp"
+#include "GLM/gtc/type_ptr.hpp"
+
 struct configurations
 {
     configurations(){}
@@ -159,14 +163,11 @@ int main(int argc, char const *argv[])
     int windowWidth = 640;
     int windowHeight = 480;
 
-    if(argc > 1)
-    {
-        configurations config = configure(argv[1]);
-        windowWidth = config.width;
-        windowHeight = config.height;
-        windowName = config.title.c_str();
-        shadersPath = config.shadersFilePath;
-    }
+    configurations config = configure(argv[1]);
+    windowWidth = config.width;
+    windowHeight = config.height;
+    windowName = config.title.c_str();
+    shadersPath = config.shadersFilePath;
 
     std::cout << "[INFO]: \"" << windowName << "\"" << std::endl;
 
@@ -211,7 +212,8 @@ int main(int argc, char const *argv[])
     // Create Shaders
     GLuint program = createShaders(shadersPath.c_str());
 
-    GLint vpos_location, vcol_location;
+    GLint mvp_location, vpos_location, vcol_location;
+    mvp_location  = glGetUniformLocation(program, "uMVP");
     vpos_location = glGetAttribLocation(program, "vPos");
     vcol_location = glGetAttribLocation(program, "vCol");
 
@@ -220,6 +222,11 @@ int main(int argc, char const *argv[])
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*) (sizeof(float) * 2));
 
+    float rotationAngle = 0.0f;
+    glm::mat4 m = glm::mat4 (1.0f);  // Single value to construct diagonal matrix.
+    glm::mat4 p = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+    glm::mat4 mvp;
+
     // Main Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -227,7 +234,12 @@ int main(int argc, char const *argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Rendering is done here.
+        rotationAngle += .02;
+        p = glm::rotate(rotationAngle, glm::vec3(0.0, 0.0, 1.0));
+        mvp = m * p;
+
         glUseProgram(program);
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Swap front and back buffers
