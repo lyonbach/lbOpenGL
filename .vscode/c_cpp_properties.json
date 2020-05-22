@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Vendor/GLFW/include",
-                "${workspaceFolder}/Vendor/GLEW/include"
+                "${workspaceFolder}/Vendor/GLEW/include",
+                "${workspaceFolder}/Vendor/GLM/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

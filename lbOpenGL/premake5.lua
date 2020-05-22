@@ -6,7 +6,8 @@ project(projectName)
     
     includedirs {
         "../Vendor/GLFW/include",
-        "../Vendor/GLEW/include"
+        "../Vendor/GLEW/include",
+        "../Vendor/GLM/include"
     }
         
     libdirs {
@@ -15,7 +16,7 @@ project(projectName)
     }
 
     -- Order Matters!
-    links { "glfw3", "GL", "X11", "pthread", "dl" }
+    links { "glfw3", "GLEW:static", "GL", "X11", "pthread", "dl" }
         
     objdir ( "/tmp/" .. projectName )
         
