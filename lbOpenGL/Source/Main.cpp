@@ -9,9 +9,13 @@
 
 #include "Helpers.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "VertexArrayObject.h"
 
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Config/Main.cfg";
+const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Textures/test_pattern.bmp";
+const char* shadersPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/Shaders.shd";
+const char* shadersPath2 = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/TextureShader.shd";
 
 const float vertices[6 * 3] = {
     -0.6f, -0.4f, 0.0f, /*position*/ 1.0f, 0.0f, 0.0f, /*color*/
@@ -20,17 +24,19 @@ const float vertices[6 * 3] = {
 };
 
 const unsigned int indices[3] = {
-    0, 2, 1  // Element numbers.
-};
-
-const float vertices2[6 * 3] = {
-     0.0f,  0.0f, 0.0f, /*position*/ 0.0f, 0.0f, 1.0f,  /*color*/
-     0.6f, -0.4f, 0.0f, /*position*/ 0.0f, 1.0f, 0.0f, /*color*/
-    -0.6f, -0.4f, 0.0f, /*position*/ 1.0f, 0.0f, 0.0f, /*color*/
-};
-
-const unsigned int indices2[3] = {
     0, 1, 2  // Element numbers.
+};
+
+const float vertices2[6 * 4] = {
+    -0.8f, -0.4f, 0.0f, /*position*/ 0.0f, 0.0f, 0.0f, /*UVs*/
+    -0.8f,  0.6f, 0.0f, /*position*/ 0.0f, 1.0f, 0.0f, /*UVs*/
+     0.8f, -0.4f, 0.0f, /*position*/ 1.0f, 0.0f, 0.0f, /*UVs*/
+     0.8f,  0.6f, 0.0f, /*position*/ 1.0f, 1.0f, 0.0f, /*UVs*/
+};
+
+const unsigned int indices2[3 * 2] = {
+    0, 2, 3,  // Element numbers.
+    0, 3, 1  
 };
 
 static void cb_KeyPress(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -67,7 +73,6 @@ int main(int argc, char const *argv[])
     const int windowWidth = config.m_windowWidth;
     const int windowHeight = config.m_windowHeight;
     const char* windowName = config.m_windowTitle.c_str();
-    const char* shadersPath = config.m_shadersFilePath.c_str();;
 
     std::cout << "[INFO][MAIN]: \"" << windowName << "\"" << std::endl;
 
@@ -103,13 +108,19 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    // Generate Buffers
-    VertexArrayObject vao(vertices, 3*6*sizeof(float), indices, 3);
-    VertexArrayObject vao2(vertices2, 3*6*sizeof(float), indices, 3);
 
+
+    // Generate Buffers
+    VertexArrayObject vao(vertices, 3 * 6 * sizeof(float), indices, 3);
+    VertexArrayObject vao2(vertices2, 4 * 6 * sizeof(float), indices2, 3 * 2);
+
+
+    // Generate Textures
+    Texture texture(400, 400, helpers.loadTexture(texturePath));
 
     // Create Shaders
     Shader shader(shadersPath);
+    Shader textureShader(shadersPath2);
     GLuint program = shader.getShaderProgram();
 
     GLint mvp_location;
@@ -128,32 +139,37 @@ int main(int argc, char const *argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Rendering is done here.
-        shader.On();
 
         // Draw call 1.
         {
-            rotationAngle += .01f;
             model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-            glm::mat4 rotateZ = glm::rotate(rotationAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-            mvp = model * rotateZ * view * projection;
+            glm::mat4 rotateZ = glm::rotate(rotationAngle + 5.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
-            vao.On();
+            vao2.On();
+            texture.On();
+            textureShader.On();
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-            vao.Off();
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            textureShader.Off();
+            vao2.Off();
         }
 
         // Draw call 2.
         {
-            model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-            glm::mat4 rotateZ = glm::rotate(rotationAngle + 5.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-            mvp = model * rotateZ * view * projection;
+            rotationAngle += .01f;
+            model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+            glm::mat4 rotateZ = glm::rotate(rotationAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+            glm::mat4 translate = glm::translate(glm::vec3(0.8f, -0.8f, 0.0f));
+            mvp = model * translate * rotateZ * view * projection;
 
-            vao2.On();
+            vao.On();
+            shader.On();
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
             glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-            vao2.Off();
+            shader.Off();
+            vao.Off();
         }
+
 
         // Swap front and back buffers
         glfwSwapBuffers(window);
