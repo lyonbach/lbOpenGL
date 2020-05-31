@@ -70,7 +70,7 @@ void Shader::createShaderProgram(const char* filePath)
     glDeleteProgram(m_Id);
     m_Id = glCreateProgram();
 
-    std::cout << "[INFO]: Creating shaders..." << std::endl;
+    std::cout << "[INFO][SHADER]: Creating shaders..." << std::endl;
     std::string vertexShaderString;
     std::string fragmentShaderString;
     readShadersFile(filePath, &vertexShaderString, &fragmentShaderString);
@@ -88,7 +88,7 @@ void Shader::createShaderProgram(const char* filePath)
     glGetProgramiv(m_Id, GL_LINK_STATUS, &compilationSuccess);
     if (compilationSuccess == 0) {
         glGetProgramInfoLog(m_Id, sizeof(errorLog), NULL, &errorLog);
-        std::cerr << "[ERROR]: Could not link shader program!\n" << 
+        std::cerr << "[ERROR][SHADER]: Could not link shader program!\n" << 
         errorLog << std::endl;
         return;
     }

@@ -50,19 +50,31 @@ static void cb_FrameBuffsize(GLFWwindow* window, int width, int height)
 int main(int argc, char const *argv[])
 {
 
+    // Get Configurations
     Helpers helpers(configPath);
+    Configuration config;
+    helpers.getConfiguration(&config);
+    if (!config.ok)
+    {
+        std::cout << "[ERROR][MAIN]: Configurations could not be set properly. Aborted." << std::endl;
+        return -1;
+    }
+    else
+    {
+        std::cout << "[DEBUG][MAIN]: Configurations were successfully set, starting..." << std::endl;
+    }
 
-    const int windowWidth = helpers.m_Configuration.m_windowWidth;
-    const int windowHeight = helpers.m_Configuration.m_windowHeight;
-    const char* windowName = helpers.m_Configuration.m_windowTitle.c_str();
-    const char* shadersPath = helpers.m_Configuration.m_shadersFilePath.c_str();;
+    const int windowWidth = config.m_windowWidth;
+    const int windowHeight = config.m_windowHeight;
+    const char* windowName = config.m_windowTitle.c_str();
+    const char* shadersPath = config.m_shadersFilePath.c_str();;
 
-    std::cout << "[INFO]: \"" << windowName << "\"" << std::endl;
+    std::cout << "[INFO][MAIN]: \"" << windowName << "\"" << std::endl;
 
     // Initialize GLFW
     if (!glfwInit())
     {
-        std::cout << "[ERROR]: Failed to initialize GLFW." << std::endl;
+        std::cout << "[ERROR][MAIN]: Failed to initialize GLFW." << std::endl;
         return -1;
     }
 
@@ -87,7 +99,7 @@ int main(int argc, char const *argv[])
     // GLEW
     if (glewInit())
     {
-        std::cout << "[ERROR]: Unable to initialize glew!" << std::endl;
+        std::cout << "[ERROR][MAIN]: Unable to initialize glew!" << std::endl;
         return -1;
     }
 

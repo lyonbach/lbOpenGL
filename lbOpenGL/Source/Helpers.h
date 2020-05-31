@@ -12,13 +12,14 @@ struct Configuration
     int m_windowHeight;
     std::string m_windowTitle;
     std::string m_shadersFilePath;
+    bool ok = false;
 };
 
 class Helpers
 {
+    private:
+        const char* m_configurationsFilePath;
     public:
-        Helpers(const char* configurationsFilePath);
-    public:
-        Configuration m_Configuration;
-
+        Helpers(const char* filePath);
+        void getConfiguration(Configuration* config);
 };
