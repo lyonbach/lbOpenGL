@@ -1,15 +1,10 @@
 #pragma once
 
-#include <string>
-#include <cstring>
-#include <string>
-#include <fstream>
-#include <sstream>
-
 #include "GL/glew.h"
+#include <vector>
 
+// Textures
 #define BMP "bmp"
-#define PNG "png"
 
 struct Configuration
 {

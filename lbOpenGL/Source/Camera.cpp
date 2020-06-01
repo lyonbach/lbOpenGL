@@ -31,7 +31,7 @@ void Camera::UpdateProjection(glm::mat4* projection)
 void Camera::UpdateView(glm::mat4* view, float deltaTime)
 {
     // void ComputeView(glm::mat4* viewMatrix)
-    float speed = 3.0f;  // TODO: Should be moved to a constants or configuration struct.
+    float speed = 6.0f;  // TODO: Should be moved to a constants or configuration struct.
     float mouseSpeed = 0.05f;  // TODO: Should be moved to a constants or configuration struct.
     float horizontalAngle = 0.0f;
     float verticalAngle = 0.0f;
@@ -105,7 +105,7 @@ void Camera::UpdateView(glm::mat4* view, float deltaTime)
 void Camera::SetPosition(glm::vec3 position)
 {
     m_Position = position;
-    std::cout << "[DEBUG][CAMERA]: Target has been set to\n\t" << glm::to_string(position) << std::endl;
+    std::cout << "[DEBUG][CAMERA]: Position has been set to\n\t" << glm::to_string(position) << std::endl;
 }
 
 void Camera::SetTarget(glm::mat4* view, glm::vec3 target)

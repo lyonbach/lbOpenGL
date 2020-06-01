@@ -12,42 +12,83 @@
 #include "Helpers.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "VertexArrayObject.h"
+#include "ModelManager.h"
+#include "VertexBufferObject.h"
+#include "IndexBufferObject.h"
 #include "Camera.h"
 
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Config/Main.cfg";
-// const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Textures/test_pattern.bmp";
-const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Textures/test_wall.bmp";
+const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Textures/test.bmp";
 const char* shadersPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/Shaders.shd";
 const char* shadersPath2 = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/TextureShader.shd";
+const char* modelPath  = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Models/Suzanne.obj";
+
+#define display(x) for(auto e: x) std::cout << e <<std::endl
 
 // Uniform Variable Names: TODO: Move them to a dedicated constants.
 const char* un_mvp = "uMVP";
 std::vector<Camera> cameras;
 unsigned int cameraCount;
 
-const float vertices[6 * 3] = {
-    -0.6f, -0.4f, 0.0f, /*position*/ 1.0f, 0.0f, 0.0f, /*color*/
-     0.6f, -0.4f, 0.0f, /*position*/ 0.0f, 1.0f, 0.0f, /*color*/
-     0.0f,  0.6f, 0.0f, /*position*/ 0.0f, 0.0f, 1.0f  /*color*/
+const float vertices[3 * 4] = {
+    -1.0f, -1.0f, 0.0f, /*position*/
+    -1.0f,  1.0f, 0.0f, /*position*/
+     1.0f, -1.0f, 0.0f, /*position*/
+     1.0f,  1.0f, 0.0f, /*position*/
 };
 
-const unsigned int indices[3] = {
-    0, 1, 2  // Element numbers.
+const float vertices2[3 * 8] = {
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f
 };
 
-const float vertices2[6 * 4] = {
-    -1.0f, -1.0f, 0.0f, /*position*/ 0.0f, 0.0f, 0.0f, /*UVs*/
-    -1.0f,  1.0f, 0.0f, /*position*/ 0.0f, 1.0f, 0.0f, /*UVs*/
-     1.0f, -1.0f, 0.0f, /*position*/ 1.0f, 0.0f, 0.0f, /*UVs*/
-     1.0f,  1.0f, 0.0f, /*position*/ 1.0f, 1.0f, 0.0f, /*UVs*/
+const float uvs[4 * 2] = {
+    0.0f, 0.0f, /*uvs*/
+    0.0f, 1.0f, /*uvs*/
+    1.0f, 0.0f, /*uvs*/
+    1.0f, 1.0f, /*uvs*/
 };
 
-const unsigned int indices2[3 * 2] = {
+const unsigned int indices[3 * 2] = {
     0, 2, 3,  // Element numbers.
     0, 3, 1
 };
 
+const unsigned int indices2[3 * 12] = 
+{
+    2, 3, 1,
+    4, 7, 3,
+    8, 5, 7,
+    6, 1, 5,
+    7, 1, 3,
+    4, 6, 8,
+    2, 4, 3,
+    4, 8, 7,
+    8, 6, 5,
+    6, 2, 1,
+    7, 5, 1,
+    4, 2, 6
+};
+
+const int verticesInt[3 * 4] = {
+    -1, -1,  0, /*position*/
+    -1,  2,  0, /*position*/
+     2, -1,  0, /*position*/
+     4,  4,  0, /*position*/
+};
+
+const unsigned int uvsInt[4 * 2] = {
+    0, 0, /*uvs*/
+    0, 1, /*uvs*/
+    1, 0, /*uvs*/
+    1, 1, /*uvs*/
+};
 
 void ComputeView(GLFWwindow* window, glm::vec3* position, float deltaTime, glm::mat4* viewMatrix, glm::mat4* projectionMatrix)
 {
@@ -125,7 +166,7 @@ static void cb_FrameBuffsize(GLFWwindow* window, int width, int height)
         are looped and informed about the screen size.
         Later Renderer class would be responsible of doing that.
     */
-   
+
    for(int i = 0; i < cameraCount; i++)
    {
         Camera camera = cameras[i];
@@ -194,20 +235,102 @@ int main(int argc, char const *argv[])
     }
 
     // Set GLEW Parameters
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); glEnable(GL_BLEND);
     glDepthFunc(GL_LESS);
 
-    // Generate Buffers
-    // VertexArrayObject vao(vertices, 3 * 6 * sizeof(float), indices, 3);
-    VertexArrayObject vao2(vertices2, 4 * 6 * sizeof(float), indices2, 3 * 2);
+    // Create Shaders
+    // Shader textureShader(shadersPath);
+    Shader textureShader(shadersPath2);
+    GLint mvp_location;
+
+    // Read Model From File
+    OBJLoader loader(modelPath);
+    ModelData modelData;
+    loader.Load(&modelData, true);
+    
+    // int vbc = modelData.vertexBuffer.size();
+    // float vb[vbc];
+    // std::copy(modelData.vertexBuffer.begin(), modelData.vertexBuffer.end(), vb);
+
+    int vcbc = modelData.vertexCoordsBuffer.size();
+    float vcb[vcbc];
+    std::copy(modelData.vertexCoordsBuffer.begin(), modelData.vertexCoordsBuffer.end(), vcb);
+
+
+    int tcbc = modelData.textureCoordsBuffer.size();
+    float tcb[tcbc];
+    std::copy(modelData.textureCoordsBuffer.begin(), modelData.textureCoordsBuffer.end(), tcb);
+
+    int vnbc = modelData.vertexNormalsBuffer.size();
+    float vnb[vnbc];
+    std::copy(modelData.vertexNormalsBuffer.begin(), modelData.vertexNormalsBuffer.end(), vnb);
+
+    int ibec = modelData.indexBuffer.size();
+    unsigned int ibe[ibec];
+    std::copy(modelData.indexBuffer.begin(), modelData.indexBuffer.end(), ibe);
+    
+    // Generate Vertex Arrays
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray(vao);
+
+    VertexBufferLayout vertexLayout;
+    vertexLayout.m_ElementCount = 3;
+    vertexLayout.m_Index = 0;  // This should be read from the currently bound shader.
+
+    VertexBufferLayout uvsLayout;
+    uvsLayout.m_ElementCount = 2;
+    uvsLayout.m_Index = 1;
+
+    VertexBufferLayout normalsLayout;
+    normalsLayout.m_ElementCount = 3;
+    normalsLayout.m_Index = 2;
+
+    // Create Vertex Coordinates Buffer - Should be handled by a model class later.
+    VertexBufferObject vertexCoordsBufferObject(vcb, vcbc);
+    vertexCoordsBufferObject.SetLayout(vertexLayout);
+    vertexCoordsBufferObject.On();
+    glEnableVertexAttribArray(vertexCoordsBufferObject.GetLayoutIndex());
+    glVertexAttribPointer(vertexCoordsBufferObject.GetLayoutIndex(),
+                          vertexCoordsBufferObject.GetLayoutElementCount(),
+                          vertexCoordsBufferObject.GetDataType(),
+                          vertexCoordsBufferObject.IsNormalized(),
+                          vertexCoordsBufferObject.GetStride(),
+                          vertexCoordsBufferObject.GetOffsetPointer());
+    vertexCoordsBufferObject.Off();
+
+    // Create Texture Coordinates Buffer
+    VertexBufferObject textureCoordsBufferObject(tcb, tcbc);
+    textureCoordsBufferObject.SetLayout(uvsLayout);
+    textureCoordsBufferObject.On();
+    glEnableVertexAttribArray(textureCoordsBufferObject.GetLayoutIndex());
+    glVertexAttribPointer(textureCoordsBufferObject.GetLayoutIndex(),
+                          textureCoordsBufferObject.GetLayoutElementCount(),
+                          textureCoordsBufferObject.GetDataType(),
+                          textureCoordsBufferObject.IsNormalized(),
+                          textureCoordsBufferObject.GetStride(),
+                          textureCoordsBufferObject.GetOffsetPointer());
+    textureCoordsBufferObject.Off();
+
+    // Create Vertex Normals Buffer
+    VertexBufferObject vertexNormalsBufferObject(vnb, vnbc);
+    vertexNormalsBufferObject.SetLayout(normalsLayout);
+    vertexNormalsBufferObject.On();
+    glEnableVertexAttribArray(vertexNormalsBufferObject.GetLayoutIndex());
+    glVertexAttribPointer(vertexNormalsBufferObject.GetLayoutIndex(),
+                          vertexNormalsBufferObject.GetLayoutElementCount(),
+                          vertexNormalsBufferObject.GetDataType(),
+                          vertexNormalsBufferObject.IsNormalized(),
+                          vertexNormalsBufferObject.GetStride(),
+                          vertexNormalsBufferObject.GetOffsetPointer());
+    vertexNormalsBufferObject.Off();
+
+    // Generate Index Buffers
+    IndexBufferObject ibo(ibe, ibec);
 
     // Generate Textures
     Texture texture(1024, 1024, helpers.loadTexture(texturePath));
-
-    // Create Shaders
-    // Shader shader(shadersPath);
-    Shader textureShader(shadersPath2);
-    GLint mvp_location;
 
     // Create Camera
     Camera camera(window);
@@ -229,12 +352,12 @@ int main(int argc, char const *argv[])
 
     // Calculate transformations
     glm::mat4 translate = glm::translate( glm::vec3(0.0f, 0.0f, 0.0));
-    glm::mat4 rotate = glm::rotate(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 rotate = glm::rotate(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
     model = translate * rotate * scale;
     camera.UpdateProjection(&projection);
 
-    
+
     while(!glfwWindowShouldClose(window))
     {
 
@@ -245,19 +368,21 @@ int main(int argc, char const *argv[])
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // camera.UpdateView(&view, deltaTime);
-        
+
         // Rendering is done here.
         // Draw call 1.
         {
             mvp = projection * view * model;
 
-            vao2.On();
+            glBindVertexArray(vao);
+            ibo.On();
+
             textureShader.On();
             mvp_location  = glGetUniformLocation(textureShader.getShaderProgram(), un_mvp);
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, ibo.GetElementCount(), GL_UNSIGNED_INT, 0);
+            // glDrawArrays(GL_TRIANGLES, 0, sizeof(vcbc + tcbc + vnbc) / sizeof(float) / 8);
             textureShader.Off();
-            vao2.Off();
         }
 
 

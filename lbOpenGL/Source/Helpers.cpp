@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include "Helpers.h"
 
@@ -30,7 +32,7 @@ void Helpers::getConfiguration(Configuration* config)
             if(line.find("[ShadersPath]:") != std::string::npos) config->m_shadersFilePath = line.substr(14);
         }
         config->ok = true;
-    } else 
+    } else
     {
         std::cout << "[ERROR][HELPERS]: Reading configurations file failed!:\n\t\"" << m_configurationsFilePath << '\"' << std::endl;
         config->ok = false;
@@ -50,12 +52,15 @@ GLuint* Helpers::loadTexture(const char* filePath) const
     GLuint* loaded;
     if (ext == BMP)
     {
-        std::cout << "[DEBUG][HELPERS]: Texture file-type: " << ext << std::endl; 
+        std::cout << "[DEBUG][HELPERS]: Texture file-type: " << ext << std::endl;
         loaded = loadBMP(filePath);
     }
+    else
+    {
+        std::cout << "[ERROR][HELPERS]: Unable to load:\n\t" << filePath << "\nCurrently only bmp files are supported." << std::endl;
+        return nullptr;
+    }
 
-    if (ext == PNG)
-        return 0;
     std::cout << "[DEBUG][HELPERS]: Texture load successful." << std::endl;
     return loaded;
 }
@@ -72,6 +77,7 @@ GLuint* Helpers::loadBMP(const char* filePath) const
     if (!file)
     {
         std::cout << "[ERROR][HELPERS]: Unable to open texture for reading." << std::endl;
+        return nullptr;
     }
 
     // Check if the file is really a bmp file.
