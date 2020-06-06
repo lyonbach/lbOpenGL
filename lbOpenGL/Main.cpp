@@ -17,11 +17,11 @@
 #include "IndexBufferObject.h"
 #include "Camera.h"
 
-const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Config/Main.cfg";
-const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Textures/test.bmp";
-const char* shadersPath = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/Shaders.shd";
-const char* shadersPath2 = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Shaders/TextureShader.shd";
-const char* modelPath  = "/home/lyonbach/Repositories/lbOpenGL/lbOpenGL/Models/Suzanne.obj";
+const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/Config/Main.cfg";
+const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/Textures/test.bmp";
+const char* shadersPath = "/home/lyonbach/Repositories/lbOpenGL/Shaders/Shaders.shd";
+const char* shadersPath2 = "/home/lyonbach/Repositories/lbOpenGL/Shaders/TextureShader.shd";
+const char* modelPath  = "/home/lyonbach/Repositories/lbOpenGL/Models/Suzanne.obj";
 
 #define display(x) for(auto e: x) std::cout << e <<std::endl
 

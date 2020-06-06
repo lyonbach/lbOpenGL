@@ -1,9 +1,9 @@
-This repository serves as a place for the intention  to implement OpenGL without following a video series.
+This repository serves as a place for the intention  to implement OpenGL without following any tutorial or video series.
 
 Project Structure
 
 ```
-lbOpenGL
+Vendor
 ├── GLEW
 │   ├── include
 │   │   └── GL
@@ -18,21 +18,21 @@ lbOpenGL
 │       ├── libGLEW.so -> libGLEW.so.2.1.0
 │       ├── libGLEW.so.2.1 -> libGLEW.so.2.1.0
 │       └── libGLEW.so.2.1.0
-└── GLFW
-    ├── include
-    │   └── GLFW
-    │       ├── glfw3.h
-    │       └── glfw3native.h
-    └── lib
-        ├── cmake
-        │   └── glfw3
-        │       ├── glfw3Config.cmake
-        │       ├── glfw3ConfigVersion.cmake
-        │       ├── glfw3Targets.cmake
-        │       └── glfw3Targets-noconfig.cmake
-        ├── libglfw3.a
-        └── pkgconfig
-            └── glfw3.pc
+├── GLFW
+│   ├── include
+│   │   └── GLFW
+│   │       ├── glfw3.h
+│   │       └── glfw3native.h
+│   └── lib
+│       ├── cmake
+│       │   └── glfw3
+│       ├── libglfw3.a
+│       └── pkgconfig
+│           └── glfw3.pc
+└── GLM
+    └── include
+        └── GLM
+            └── <items>
 ```
 
 All cpp and header files are located under the Source folder.

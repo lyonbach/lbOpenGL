@@ -7,7 +7,8 @@ project(projectName)
     includedirs {
         "../Vendor/GLFW/include",
         "../Vendor/GLEW/include",
-        "../Vendor/GLM/include"
+        "../Vendor/GLM/include",
+        "../Source/"
     }
         
     libdirs {
@@ -20,7 +21,7 @@ project(projectName)
         
     objdir ( "/tmp/" .. projectName )
         
-    files {"./Source/*.cpp", "./Source/*.h"}
+    files {"./Main.cpp", "../Source/*.cpp", "../Source/*.h"}
         
     targetdir "../Executables"
 

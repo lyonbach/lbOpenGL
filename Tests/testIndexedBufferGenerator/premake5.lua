@@ -1,19 +1,18 @@
-projectName = "testObjectLoaderAlgortihm"
+projectName = "testIndexedBufferGenerator"
 
 project(projectName)
     kind "WindowedApp"
 
-
     includedirs {
-        "../../../Vendor/GLFW/include",
-        "../../../Vendor/GLEW/include",
-        "../../../Vendor/GLM/include",
+        "../../Vendor/GLFW/include",
+        "../../Vendor/GLEW/include",
+        "../../Vendor/GLM/include",
         "../../Source"
     }
 
     libdirs {
-        "../../../Vendor/GLFW/lib",
-        "../../../Vendor/GLEW/lib64"
+        "../../Vendor/GLFW/lib",
+        "../../Vendor/GLEW/lib64"
     }
 
     -- Order Matters!

@@ -1,2 +1,0 @@
-include "testObjectLoaderAlgorithm"
-include "testIndexedBufferGenerator"
