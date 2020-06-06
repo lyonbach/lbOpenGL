@@ -19,8 +19,7 @@
 
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/Config/Main.cfg";
 const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/Textures/test.bmp";
-const char* shadersPath = "/home/lyonbach/Repositories/lbOpenGL/Shaders/Shaders.shd";
-const char* shadersPath2 = "/home/lyonbach/Repositories/lbOpenGL/Shaders/TextureShader.shd";
+const char* shaderPath = "/home/lyonbach/Repositories/lbOpenGL/Shaders/TextureShader.shd";
 const char* modelPath  = "/home/lyonbach/Repositories/lbOpenGL/Models/Suzanne.obj";
 
 #define display(x) for(auto e: x) std::cout << e <<std::endl
@@ -29,66 +28,6 @@ const char* modelPath  = "/home/lyonbach/Repositories/lbOpenGL/Models/Suzanne.ob
 const char* un_mvp = "uMVP";
 std::vector<Camera> cameras;
 unsigned int cameraCount;
-
-const float vertices[3 * 4] = {
-    -1.0f, -1.0f, 0.0f, /*position*/
-    -1.0f,  1.0f, 0.0f, /*position*/
-     1.0f, -1.0f, 0.0f, /*position*/
-     1.0f,  1.0f, 0.0f, /*position*/
-};
-
-const float vertices2[3 * 8] = {
-    -1.0f, -1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f, -1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-     1.0f, -1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f
-};
-
-const float uvs[4 * 2] = {
-    0.0f, 0.0f, /*uvs*/
-    0.0f, 1.0f, /*uvs*/
-    1.0f, 0.0f, /*uvs*/
-    1.0f, 1.0f, /*uvs*/
-};
-
-const unsigned int indices[3 * 2] = {
-    0, 2, 3,  // Element numbers.
-    0, 3, 1
-};
-
-const unsigned int indices2[3 * 12] = 
-{
-    2, 3, 1,
-    4, 7, 3,
-    8, 5, 7,
-    6, 1, 5,
-    7, 1, 3,
-    4, 6, 8,
-    2, 4, 3,
-    4, 8, 7,
-    8, 6, 5,
-    6, 2, 1,
-    7, 5, 1,
-    4, 2, 6
-};
-
-const int verticesInt[3 * 4] = {
-    -1, -1,  0, /*position*/
-    -1,  2,  0, /*position*/
-     2, -1,  0, /*position*/
-     4,  4,  0, /*position*/
-};
-
-const unsigned int uvsInt[4 * 2] = {
-    0, 0, /*uvs*/
-    0, 1, /*uvs*/
-    1, 0, /*uvs*/
-    1, 1, /*uvs*/
-};
 
 void ComputeView(GLFWwindow* window, glm::vec3* position, float deltaTime, glm::mat4* viewMatrix, glm::mat4* projectionMatrix)
 {
@@ -161,9 +100,10 @@ static void cb_FrameBuffsize(GLFWwindow* window, int width, int height)
     std::cout << "[DEBUG]: Width:" << width << std::endl;
     std::cout << "[DEBUG]: Height:" << height << std::endl;
     glViewport(0, 0, width, height);
+    
     /*
-        To avoid calling glfwGetWindowSize on each relevant function call, within this funciton all of the current cameras
-        are looped and informed about the screen size.
+        To avoid calling glfwGetWindowSize on each relevant function call, 
+        all of the current cameras are looped and informed about the screen size.
         Later Renderer class would be responsible of doing that.
     */
 
@@ -239,8 +179,7 @@ int main(int argc, char const *argv[])
     glDepthFunc(GL_LESS);
 
     // Create Shaders
-    // Shader textureShader(shadersPath);
-    Shader textureShader(shadersPath2);
+    Shader textureShader(shaderPath);
     GLint mvp_location;
 
     // Read Model From File
@@ -248,14 +187,9 @@ int main(int argc, char const *argv[])
     ModelData modelData;
     loader.Load(&modelData, true);
     
-    // int vbc = modelData.vertexBuffer.size();
-    // float vb[vbc];
-    // std::copy(modelData.vertexBuffer.begin(), modelData.vertexBuffer.end(), vb);
-
     int vcbc = modelData.vertexCoordsBuffer.size();
     float vcb[vcbc];
     std::copy(modelData.vertexCoordsBuffer.begin(), modelData.vertexCoordsBuffer.end(), vcb);
-
 
     int tcbc = modelData.textureCoordsBuffer.size();
     float tcb[tcbc];
@@ -345,7 +279,6 @@ int main(int argc, char const *argv[])
     camera.SetTarget(&view, glm::vec3(0.0f));
     projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
-    // Main Loop
     float deltaTime;
     float time;
     float lastTime = glfwGetTime();
@@ -358,6 +291,7 @@ int main(int argc, char const *argv[])
     camera.UpdateProjection(&projection);
 
 
+    // Main Loop
     while(!glfwWindowShouldClose(window))
     {
 
@@ -381,10 +315,8 @@ int main(int argc, char const *argv[])
             mvp_location  = glGetUniformLocation(textureShader.getShaderProgram(), un_mvp);
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
             glDrawElements(GL_TRIANGLES, ibo.GetElementCount(), GL_UNSIGNED_INT, 0);
-            // glDrawArrays(GL_TRIANGLES, 0, sizeof(vcbc + tcbc + vnbc) / sizeof(float) / 8);
             textureShader.Off();
         }
-
 
         // Swap front and back buffers
         glfwSwapBuffers(window);
