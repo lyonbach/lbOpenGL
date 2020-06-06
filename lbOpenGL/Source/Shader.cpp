@@ -15,7 +15,7 @@ Shader::~Shader()
 
 void Shader::readShadersFile(const char* filePath, std::string* vertexShaderString, std::string* fragmentShaderString)
 {
-    std::cout << "[DEBUG]: Reading shaders file:\n" << filePath << std::endl;
+    std::cout << "[DEBUG][SHADER]: Reading shaders file:\n\t" << filePath << std::endl;
     std::ifstream stream(filePath);
     std::string line;
     std::string* current;
@@ -27,12 +27,12 @@ void Shader::readShadersFile(const char* filePath, std::string* vertexShaderStri
             if (line.find("Vertex") != std::string::npos)
             {
                 current = vertexShaderString;
-                std::cout << "[DEBUG]: Filling vertex shader string." << std::endl;
+                std::cout << "[DEBUG][SHADER]: Filling vertex shader string." << std::endl;
             }
             else if (line.find("Fragment") != std::string::npos)
             {
                 current = fragmentShaderString;
-                std::cout << "[DEBUG]: Filling fragment shader string." << std::endl;
+                std::cout << "[DEBUG][SHADER]: Filling fragment shader string." << std::endl;
             }
         }
         else { current->append(line + '\n'); }
@@ -57,7 +57,7 @@ GLuint Shader::createOneShader(GLuint shaderType, const char* shaderString)
 
         GLchar errorLog[1024];
         glGetShaderInfoLog(shaderObject, sizeof(errorLog), NULL, errorLog);
-        std::cerr << "[ERROR]: Unable to compile: " << ((shaderType == GL_VERTEX_SHADER) ? "vertex shader" : "fragment shader")
+        std::cerr << "[ERROR][SHADER]: Unable to compile: " << ((shaderType == GL_VERTEX_SHADER) ? "vertex shader" : "fragment shader")
         << '\n' << errorLog << std::endl;
         return 0;
     }
@@ -88,7 +88,7 @@ void Shader::createShaderProgram(const char* filePath)
     glGetProgramiv(m_Id, GL_LINK_STATUS, &compilationSuccess);
     if (compilationSuccess == 0) {
         glGetProgramInfoLog(m_Id, sizeof(errorLog), NULL, &errorLog);
-        std::cerr << "[ERROR][SHADER]: Could not link shader program!\n" << 
+        std::cerr << "[ERROR][SHADER]: Could not link shader program!\n\t" << 
         errorLog << std::endl;
         return;
     }
