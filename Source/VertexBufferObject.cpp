@@ -12,8 +12,8 @@ VertexBufferObject::VertexBufferObject(const void* data, unsigned int count)
 
 VertexBufferObject::~VertexBufferObject()
 {
-    Off();
-    glDeleteBuffers(1, &m_Id);
+    // Off();
+    // glDeleteBuffers(1, &m_Id);
 }
 
 void VertexBufferObject::On() const

@@ -1,9 +1,9 @@
 #include "IndexBufferObject.h"
 
-
-IndexBufferObject::IndexBufferObject(const void* data, unsigned int count)
-    : m_Data(data), m_Count(count)
+void IndexBufferObject::Init(const void* data, unsigned int count)
 {
+    m_Data = data;
+    m_Count = count;
     glGenBuffers(1, &m_Id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSize(), m_Data, m_Usage);

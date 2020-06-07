@@ -17,9 +17,9 @@ private:
     void SetUsage(int usage);
 
 public:
-    IndexBufferObject(const void* data, unsigned int count);
     ~IndexBufferObject();
     unsigned int GetElementCount() const;
+    void Init(const void* data, unsigned int count);
     void On() const;
     void Off() const;
 };
