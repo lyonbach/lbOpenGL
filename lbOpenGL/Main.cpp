@@ -110,7 +110,6 @@ int main(int argc, char const *argv[])
     glfwSetKeyCallback(window, cb_KeyPress);
     glfwSetFramebufferSizeCallback(window, cb_FrameBuffsize);
 
-
     // GLEW
     if (glewInit())
     {
@@ -121,6 +120,8 @@ int main(int argc, char const *argv[])
     // Set GLEW Parameters
     glEnable(GL_DEPTH_TEST); glEnable(GL_BLEND);
     glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE);
 
     // Create Shaders
     Shader textureShader(shaderPath);
