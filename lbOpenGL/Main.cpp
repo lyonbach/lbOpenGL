@@ -21,8 +21,8 @@
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/Config/Main.cfg";
 const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/Textures/test.bmp";
 const char* shaderPath = "/home/lyonbach/Repositories/lbOpenGL/Shaders/TextureShader.shd";
-const char* modelPath1  = "/home/lyonbach/Repositories/lbOpenGL/Models/Cube.obj";
-const char* modelPath2  = "/home/lyonbach/Repositories/lbOpenGL/Models/Suzanne.obj";
+const char* modelPath1  = "/home/lyonbach/Repositories/lbOpenGL/Models/Sphere.obj";
+const char* modelPath2  = "/home/lyonbach/Repositories/lbOpenGL/Models/3DBenchy.obj";
 
 #define display(x) for(auto e: x) std::cout << e <<std::endl
 
@@ -130,11 +130,9 @@ int main(int argc, char const *argv[])
     // Read Model From File
     ModelManager modelManager;
     modelManager.Push(modelPath1);
-    modelManager.Push(modelPath2);
     modelManager.Load();
 
-
-    VertexArrayObject vertexArrayObjects[2];
+    VertexArrayObject vertexArrayObjects[1];
 
     for(int i = 0; i < modelManager.GetModelDataArray().size(); i++)
     {
@@ -142,7 +140,7 @@ int main(int argc, char const *argv[])
         vertexArrayObjects[i].Init(*md);
     }
 
-    modelManager.~ModelManager();
+//    modelManager.~ModelManager();
 
     // Generate Textures
     Texture texture(1024, 1024, helpers.loadTexture(texturePath));
@@ -193,9 +191,9 @@ int main(int argc, char const *argv[])
         {
 
             rotationAngle += 0.01f;
-            translate = glm::translate( glm::vec3(0.0f, (i*2+(-1.0f)), 0.0));
+            translate = glm::translate( glm::vec3(0.0f, (i*2+(-2.0f)), 0.0));
             // rotate = glm::rotate(glm::radians(roationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-            rotate = glm::rotate(rotationAngle*i, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotate = glm::rotate(rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
             scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
             model = translate * rotate * scale;
 
