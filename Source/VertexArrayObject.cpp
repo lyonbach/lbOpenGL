@@ -39,7 +39,6 @@ void VertexArrayObject::Init(ModelData& modelData)
     normalsBufferLayout.m_ElementCount = 3;
     normalsBufferLayout.m_Index = 2;
     GenerateBuffer(modelData, normalsBufferLayout, vnb, vnbc);
-    
     int ibec = modelData.indexBuffer.size();
     unsigned int ibe[ibec];
     std::copy(modelData.indexBuffer.begin(), modelData.indexBuffer.end(), ibe);

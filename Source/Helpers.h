@@ -12,6 +12,8 @@ struct Configuration
     int m_windowHeight;
     std::string m_windowTitle;
     std::string m_shadersFilePath;
+    std::string m_texturePath;
+    std::string m_modelPath;
     bool ok = false;
 };
 

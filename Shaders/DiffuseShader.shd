@@ -1,0 +1,62 @@
+#Shader Vertex
+#version 330
+
+layout(location = 0) in vec3 vPos;
+layout(location = 1) in vec2 vUVs;
+layout(location = 2) in vec3 vNorm;
+
+uniform mat4 uM;
+uniform mat4 uV;
+uniform mat4 uP;
+
+out mat4 MVP;
+
+out vec2 UVs;
+out vec3 n;
+out vec3 l;
+out vec3 vPosWS;
+
+out mat4 M;
+out mat4 V;
+out mat4 P;
+
+vec3 lPosWS = vec3(3.0);
+
+
+void main()
+{
+    n = normalize((uP * vec4(vPos, 1.0)).xyz);
+    l = normalize(vPos - (uP * vec4(lPosWS, 1.0)).xyz);
+    MVP = uP * uV * uM;
+    
+    gl_Position = MVP * vec4(vPos, 1.0);
+    UVs = vUVs;
+    vPosWS = vPos;
+    M = uM;
+    V = uV;
+    P = uP;
+
+
+}
+
+#Shader Fragment
+#version 330
+
+in vec2 UVs;
+in vec3 n;
+in vec3 l;
+in vec3 vPosWS;
+in mat4 MVP;
+in mat4 M;
+in mat4 V;
+in mat4 P;
+
+vec3 vPosCS;
+uniform sampler2D textureSampler;
+
+void main()
+{
+    vPosCS = (V * M * vec4(vPosWS,1)).xyz;
+    gl_FragColor = texture(textureSampler, UVs);
+
+}

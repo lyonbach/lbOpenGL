@@ -29,7 +29,10 @@ void Helpers::getConfiguration(Configuration* config)
             if(line.find("[Width]:") != std::string::npos) config->m_windowWidth = std::stoi(line.substr(8));
             if(line.find("[Height]:") != std::string::npos) config->m_windowHeight = std::stoi(line.substr(9));
             if(line.find("[Title]:") != std::string::npos) config->m_windowTitle = line.substr(8);
+            if(line.find("[TexturePath]:") != std::string::npos) config->m_texturePath = line.substr(14);
             if(line.find("[ShadersPath]:") != std::string::npos) config->m_shadersFilePath = line.substr(14);
+            if(line.find("[ModelPath]:") != std::string::npos) config->m_modelPath = line.substr(12);
+
         }
         config->ok = true;
     } else

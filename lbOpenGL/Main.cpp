@@ -19,15 +19,12 @@
 #include "Camera.h"
 
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/Config/Main.cfg";
-const char* texturePath = "/home/lyonbach/Repositories/lbOpenGL/Textures/test.bmp";
-const char* shaderPath = "/home/lyonbach/Repositories/lbOpenGL/Shaders/TextureShader.shd";
-const char* modelPath1  = "/home/lyonbach/Repositories/lbOpenGL/Models/Sphere.obj";
-const char* modelPath2  = "/home/lyonbach/Repositories/lbOpenGL/Models/3DBenchy.obj";
+
 
 #define display(x) for(auto e: x) std::cout << e <<std::endl
 
 // Uniform Variable Names: TODO: Move them to a dedicated constants.
-const char* un_mvp = "uMVP";
+
 std::vector<Camera> cameras;
 unsigned int cameraCount;
 
@@ -124,12 +121,16 @@ int main(int argc, char const *argv[])
     glEnable(GL_CULL_FACE);
 
     // Create Shaders
-    Shader textureShader(shaderPath);
-    GLint mvp_location;
+    const char* un_m = "uM";
+    const char* un_v = "uV";
+    const char* un_p = "uP";
+    const char* un_mdc = "uMDC";
+    Shader diffuseShader(config.m_shadersFilePath.c_str());
+    GLint m_location, v_location, p_location, mdc_location;
 
     // Read Model From File
     ModelManager modelManager;
-    modelManager.Push(modelPath1);
+    modelManager.Push(config.m_modelPath.c_str());
     modelManager.Load();
 
     VertexArrayObject vertexArrayObjects[1];
@@ -143,7 +144,7 @@ int main(int argc, char const *argv[])
 //    modelManager.~ModelManager();
 
     // Generate Textures
-    Texture texture(1024, 1024, helpers.loadTexture(texturePath));
+    Texture texture(1024, 1024, helpers.loadTexture(config.m_texturePath.c_str()));
 
     // Create Camera
     Camera camera(window);
@@ -185,28 +186,34 @@ int main(int argc, char const *argv[])
         // Rendering is done here.
         // Draw call 1.
 
-        textureShader.On();
+        diffuseShader.On();
 
         for(int i = 0; i < 2; i++)
         {
 
             rotationAngle += 0.01f;
-            translate = glm::translate( glm::vec3(0.0f, (i*2+(-2.0f)), 0.0));
-            // rotate = glm::rotate(glm::radians(roationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+            translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
             rotate = glm::rotate(rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-            scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+            scale = glm::scale(glm::vec3(1.0f));
             model = translate * rotate * scale;
+
+            GLfloat temp[4] = {1.0f, 0.25f, 0.25f, 1.0f};
+            m_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_m);
+            v_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_v);
+            p_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_p);
 
             vertexArrayObjects[i].On();
             mvp = projection * view * model;
-            mvp_location  = glGetUniformLocation(textureShader.getShaderProgram(), un_mvp);
-            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
+            mdc_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_mdc);
+            glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
+            glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);
+            glUniformMatrix4fv(p_location, 1, GL_FALSE, &projection[0][0]);
+            glUniform4fv(mdc_location, 1, temp);
             glDrawElements(GL_TRIANGLES, vertexArrayObjects[i].GetElementCount(), GL_UNSIGNED_INT, 0);
-            vertexArrayObjects[i].Off();
 
         }
 
-        textureShader.Off();
+        diffuseShader.Off();
         // Swap front and back buffers
         glfwSwapBuffers(window);
 
