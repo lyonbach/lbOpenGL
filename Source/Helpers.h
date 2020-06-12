@@ -13,6 +13,7 @@ struct Configuration
     std::string m_windowTitle;
     std::string m_shadersFilePath;
     std::string m_texturePath;
+    unsigned int m_textureSize[2];
     std::string m_modelPath;
     bool ok = false;
 };

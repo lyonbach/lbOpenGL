@@ -30,6 +30,17 @@ void Helpers::getConfiguration(Configuration* config)
             if(line.find("[Height]:") != std::string::npos) config->m_windowHeight = std::stoi(line.substr(9));
             if(line.find("[Title]:") != std::string::npos) config->m_windowTitle = line.substr(8);
             if(line.find("[TexturePath]:") != std::string::npos) config->m_texturePath = line.substr(14);
+            if(line.find("[TextureSize]:") != std::string::npos)
+            {
+                std::stringstream resolutionStream(line.substr(14));
+                std::string size;
+                int c = 0;
+                while(std::getline(resolutionStream, size, 'X'))
+                {
+                    config->m_textureSize[c] = std::stoi(size);
+                    c++;
+                }
+            }
             if(line.find("[ShadersPath]:") != std::string::npos) config->m_shadersFilePath = line.substr(14);
             if(line.find("[ModelPath]:") != std::string::npos) config->m_modelPath = line.substr(12);
 

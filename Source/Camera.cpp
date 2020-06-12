@@ -13,6 +13,11 @@ Camera::~Camera()
 {
 }
 
+glm::vec3 Camera::GetPosition() const
+{
+    return m_Position;
+}
+
 void Camera::UpdateWindowSize()
 {
     glfwGetWindowSize(m_Window, &m_ScreenWidth, &m_ScreenHeight);

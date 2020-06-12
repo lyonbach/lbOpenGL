@@ -124,16 +124,17 @@ int main(int argc, char const *argv[])
     const char* un_m = "uM";
     const char* un_v = "uV";
     const char* un_p = "uP";
-    const char* un_mdc = "uMDC";
+    const char* un_lPosWS = "uLightPosition";
+    const char* un_cPosWS = "uCamPosition";
     Shader diffuseShader(config.m_shadersFilePath.c_str());
-    GLint m_location, v_location, p_location, mdc_location;
+    GLint m_location, v_location, p_location, lp_location, cp_location;
 
     // Read Model From File
     ModelManager modelManager;
     modelManager.Push(config.m_modelPath.c_str());
     modelManager.Load();
 
-    VertexArrayObject vertexArrayObjects[1];
+    VertexArrayObject vertexArrayObjects[2];
 
     for(int i = 0; i < modelManager.GetModelDataArray().size(); i++)
     {
@@ -144,11 +145,11 @@ int main(int argc, char const *argv[])
 //    modelManager.~ModelManager();
 
     // Generate Textures
-    Texture texture(1024, 1024, helpers.loadTexture(config.m_texturePath.c_str()));
+    Texture texture(config.m_textureSize[0], config.m_textureSize[1], helpers.loadTexture(config.m_texturePath.c_str()));
 
     // Create Camera
     Camera camera(window);
-    camera.SetPosition(glm::vec3(-5.0f, 2.0f, -5.0f));
+    camera.SetPosition(glm::vec3(0.0f, 0.0f, -6.0f));
     cameras.push_back(camera);
 
     float rotationAngle = 0.0f;
@@ -168,7 +169,9 @@ int main(int argc, char const *argv[])
     glm::mat4 rotate;
     glm::mat4 scale;
 
-    float roationAngle = 0.0f;
+    float someVal = 5.0f;
+    glm::vec3 lightPos(0.0f);
+    glm::vec3 camPos(0.0f);
 
     // Main Loop
     while(!glfwWindowShouldClose(window))
@@ -182,33 +185,45 @@ int main(int argc, char const *argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         camera.UpdateView(&view, deltaTime);
 
-
         // Rendering is done here.
         // Draw call 1.
 
         diffuseShader.On();
 
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < 1; i++)
         {
 
-            rotationAngle += 0.01f;
+            // Update light position
+            someVal += deltaTime / 2;
+            lightPos[0] = glm::cos(someVal) * 4;
+            lightPos[2] = glm::sin(someVal) * 4 ;
+            // lightPos[0] = 0.0f;
+            lightPos[1] = 2.0f;
+            // lightPos[2] = -5.0f;
+            // std::cout << "Ligth Pos:\n\t" << lightPos[0] << ", " << lightPos[1] << ", " << lightPos[2] << std::endl;
+
+            // Update camera position
+            camPos = camera.GetPosition();
+
             translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
-            rotate = glm::rotate(rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotate = glm::rotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             scale = glm::scale(glm::vec3(1.0f));
             model = translate * rotate * scale;
+            // mvp = projection * view * model;  // This is now being done by the vertex shader.
 
-            GLfloat temp[4] = {1.0f, 0.25f, 0.25f, 1.0f};
             m_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_m);
             v_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_v);
             p_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_p);
+            lp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_lPosWS);
+            cp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_cPosWS);
 
-            vertexArrayObjects[i].On();
-            mvp = projection * view * model;
-            mdc_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_mdc);
             glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
             glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);
             glUniformMatrix4fv(p_location, 1, GL_FALSE, &projection[0][0]);
-            glUniform4fv(mdc_location, 1, temp);
+            glUniform3fv(lp_location, 1, &lightPos[0]);
+            glUniform3fv(cp_location, 1, &camPos[0]);
+
+            vertexArrayObjects[i].On();
             glDrawElements(GL_TRIANGLES, vertexArrayObjects[i].GetElementCount(), GL_UNSIGNED_INT, 0);
 
         }

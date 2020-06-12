@@ -33,6 +33,8 @@ public:
     Camera(GLFWwindow* window);
     ~Camera();
  
+    glm::vec3 GetPosition() const;
+
     void UpdateProjection(glm::mat4* projection);
     void UpdateView(glm::mat4* view, float deltaTime);
 
