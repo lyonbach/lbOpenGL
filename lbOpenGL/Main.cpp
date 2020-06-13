@@ -159,7 +159,6 @@ int main(int argc, char const *argv[])
     // Create Camera
     Camera camera(window);
     camera.SetPosition(glm::vec3(0.0f, 0.0f, -6.0f));
-    camera.SetTarget(glm::vec3(0.0f, 0.0f, 1.0f));
     cameras.push_back(camera);
 
     // Setup Renderer

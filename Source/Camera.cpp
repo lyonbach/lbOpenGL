@@ -35,10 +35,9 @@ void Camera::UpdateProjection(glm::mat4* projection)
 
 void Camera::UpdateView(glm::mat4* view, float deltaTime)
 {
-    // void ComputeView(glm::mat4* viewMatrix)
     float speed = 6.0f;  // TODO: Should be moved to a constants or configuration struct.
     float mouseSpeed = 0.05f;  // TODO: Should be moved to a constants or configuration struct.
-    float horizontalAngle = 0.0f;
+    float horizontalAngle = 0.0f;  //TODO: Get this from current
     float verticalAngle = 0.0f;
 
     // Truncate deltaTime to avoid noise.
@@ -48,63 +47,83 @@ void Camera::UpdateView(glm::mat4* view, float deltaTime)
     // Update cursor position.
     double mouseX, mouseY;
     glfwGetCursorPos(m_Window, &mouseX, &mouseY);
-
+    // glfwSetCursorPos(m_Window, m_ScreenWidth/2, m_ScreenHeight/2);
     // Update orientations.
     horizontalAngle -= mouseSpeed * deltaTime * float(mouseX);
     verticalAngle   += mouseSpeed * deltaTime * float(mouseY);
-    // Convert from spherical coords to rectangular coordinates.
-    glm::vec3 direction(
-        cos(verticalAngle) * sin(horizontalAngle),
-        sin(verticalAngle),
-        cos(verticalAngle) * cos(horizontalAngle));
 
-    // std::cout << "mouseX: " << mouseX << std::endl;
-    // std::cout << "mouseY: " << mouseY << std::endl;
-    // std::cout << "deltaTime: " << deltaTime << std::endl;  
+    // Convert from spherical coords to rectangular coordinates.
+    m_FrontVector = glm::vec3(cos(verticalAngle) * sin(horizontalAngle),
+                              sin(verticalAngle),
+                              cos(verticalAngle) * cos(horizontalAngle));
 
     // Right Vector
-    glm::vec3 right = glm::vec3(
+    m_RightVector = glm::vec3(
         sin(horizontalAngle - 3.14f / 2.0f),
         0,
         cos(horizontalAngle - 3.14f / 2.0f));
 
+
+    // Orientation
+    // Spin CCW
+    if (glfwGetKey(m_Window, GLFW_KEY_Z) == GLFW_PRESS)
+    {
+        // B = A - (A.dor.N)N,
+        // Reflect right vector to the horizontal worldspace and subtract the result from the original vector.
+        // glm::vec3 normalWS(0.0f, 1.0f, 0.0f);
+        // glm::vec3 projected = m_RightVector - glm::dot(m_RightVector, normalWS) * normalWS;
+        // std::cout << glm::to_string(projected) << std::endl;
+        // float cosTheta = glm::dot(m_RightVector, projected) / (glm::length(m_RightVector) * glm::length(projected));
+        // cosTheta += speed * deltaTime;
+        // m_RightVector = glm::rotate(m_RightVector, glm::radians(cosTheta), m_FrontVector);
+        // std::cout << "[DEBUG][CAMERA]: Implement Spinning!" << std::endl;
+        SetTarget(glm::vec3(2.0, 0.0, 0.0));
+    }
+
+    // Spin CW
+    if (glfwGetKey(m_Window, GLFW_KEY_C) == GLFW_PRESS)
+    {
+        std::cout << "[DEBUG][CAMERA]: Implement Spinning!" << std::endl;
+    }
+
     // Up Vector
-    glm::vec3 up = glm::cross(right, direction);
+    m_UpVector = glm::cross(m_RightVector, m_FrontVector);
 
     // Position.
-        // Move forward
+    // Move forward
     if (glfwGetKey(m_Window, GLFW_KEY_W ) == GLFW_PRESS){
-        m_Position += direction * deltaTime * speed;
+        m_Position += m_FrontVector * deltaTime * speed;
     }
+
     // Move backward
     if (glfwGetKey(m_Window, GLFW_KEY_S ) == GLFW_PRESS){
-        m_Position -= direction * deltaTime * speed;
+        m_Position -= m_FrontVector * deltaTime * speed;
     }
+
     // Strafe right
     if (glfwGetKey(m_Window, GLFW_KEY_D ) == GLFW_PRESS){
-        m_Position += right * deltaTime * speed;
+        m_Position += m_RightVector * deltaTime * speed;
     }
+
     // Strafe left
     if (glfwGetKey(m_Window, GLFW_KEY_A ) == GLFW_PRESS){
-        m_Position -= right * deltaTime * speed;
+        m_Position -= m_RightVector * deltaTime * speed;
     }
+
     // Climb
     if (glfwGetKey(m_Window, GLFW_KEY_E) == GLFW_PRESS)
     {
-        m_Position += up * deltaTime * speed;
+        m_Position += m_UpVector * deltaTime * speed;
     }
+
     // Dive
     if (glfwGetKey(m_Window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-        m_Position -= up * deltaTime * speed;
+        m_Position -= m_UpVector * deltaTime * speed;
     }
 
-
-    // Projection matrix : 45&deg; Field of View, square view, clipping area : 0.01 unit <-> 100 units
-    // *projectionMatrix = glm::perspective(glm::radians(fov), 1.0f, 0.01f, 100.0f);
     // View matrix
-    *view = glm::lookAt(m_Position, m_Position + direction, up);
-    // glfwSetCursorPos(m_Window, double(m_ScreenWidth)/2, double(m_ScreenHeight)/2);
+    *view = glm::lookAt(m_Position, m_Position + m_FrontVector, m_UpVector);
 }
 
 void Camera::SetPosition(glm::vec3 position)
@@ -113,14 +132,9 @@ void Camera::SetPosition(glm::vec3 position)
     std::cout << "[DEBUG][CAMERA]: Position has been set to\n\t" << glm::to_string(position) << std::endl;
 }
 
-void Camera::SetTarget(glm::mat4* view, glm::vec3 target)
+void Camera::SetTarget(glm::vec3 target)
 {
     m_FrontVector = target;
-    *view = glm::lookAt(
-        m_Position,
-        m_FrontVector,
-        m_UpVector
-        );
     std::cout << "[DEBUG][CAMERA]: Target has been set to\n\t" << glm::to_string(target) << std::endl;
 }
 

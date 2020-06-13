@@ -16,10 +16,11 @@ private:
  
     // unsigned int m_Id;
     glm::vec3 m_Position = glm::vec3(0.0f);
-    // glm::quat m_Rotation;
-    glm::vec3 m_Rotation; // TODO: Implement as quaternion.
+    // glm::quat m_Rotation;  // TODO: Implement as quaternion.
+    // glm::vec3 m_Target;
     glm::vec3 m_FrontVector = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 m_UpVector = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 m_RightVector = glm::vec3(-1.0f, 0.0, 0.0);
     float m_FOV = 45.0f;
     float m_ZoomLevel = 1.0f; // 2.0 means 2x zoom -> FOV= 45.0f / 2
     float m_ClipNear = 0.1f;
@@ -39,7 +40,7 @@ public:
     void UpdateView(glm::mat4* view, float deltaTime);
 
     void SetPosition(glm::vec3 position);
-    void SetTarget(glm::mat4* view, glm::vec3 target);
+    void SetTarget(glm::vec3 target);
     void SetZoom(float zoom);
     void SetNearClip(float clipNear);
     void SetFarClip(float clipFar);
