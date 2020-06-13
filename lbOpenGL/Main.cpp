@@ -126,7 +126,9 @@ int main(int argc, char const *argv[])
     const char* un_p = "uP";
     const char* un_lPosWS = "uLightPosition";
     const char* un_cPosWS = "uCamPosition";
-    Shader diffuseShader(config.m_shadersFilePath.c_str());
+    Shader shader;
+    shader.SetShaderFilePath(config.m_shadersFilePath.c_str());
+    shader.GenerateShaders();
     GLint m_location, v_location, p_location, lp_location, cp_location;
 
     // Load Models
@@ -191,7 +193,7 @@ int main(int argc, char const *argv[])
         // Rendering is done here.
         // Draw call 1.
 
-        diffuseShader.On();
+        shader.On();
 
         // Update light position
         someVal += deltaTime / 2;
@@ -205,11 +207,11 @@ int main(int argc, char const *argv[])
         model = translate * rotate * scale;
         // mvp = projection * view * model;  // This is now being done by the vertex shader.
 
-        m_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_m);
-        v_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_v);
-        p_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_p);
-        lp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_lPosWS);
-        cp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_cPosWS);
+        m_location  = glGetUniformLocation(shader.GetShaderProgram(), un_m);
+        v_location  = glGetUniformLocation(shader.GetShaderProgram(), un_v);
+        p_location  = glGetUniformLocation(shader.GetShaderProgram(), un_p);
+        lp_location = glGetUniformLocation(shader.GetShaderProgram(), un_lPosWS);
+        cp_location = glGetUniformLocation(shader.GetShaderProgram(), un_cPosWS);
 
         glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
         glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);
@@ -222,7 +224,7 @@ int main(int argc, char const *argv[])
         vertexArrayObjects[0].Off();
 
 
-        diffuseShader.Off();
+        shader.Off();
         // Swap front and back buffers
         glfwSwapBuffers(window);
 

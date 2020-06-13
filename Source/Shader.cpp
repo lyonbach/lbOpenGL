@@ -3,17 +3,28 @@
 #include "Shader.h"
 
 
-Shader::Shader(const char* filePath)
+Shader::Shader()
 {
-    createShaderProgram(filePath);
+
 }
+
 
 Shader::~Shader()
 {
     glDeleteProgram(m_Id);
 }
 
-void Shader::readShadersFile(const char* filePath, std::string* vertexShaderString, std::string* fragmentShaderString)
+const char* Shader::GetShadersFilePath() const
+{
+    return m_ShadersFilePath;
+}
+
+void Shader::SetShaderFilePath(const char* shadersFilePath)
+{
+    m_ShadersFilePath = shadersFilePath;
+}
+
+void Shader::ReadShadersFile(const char* filePath, std::string* vertexShaderString, std::string* fragmentShaderString)
 {
     std::cout << "[DEBUG][SHADER]: Reading shaders file:\n\t" << filePath << std::endl;
     std::ifstream stream(filePath);
@@ -39,7 +50,7 @@ void Shader::readShadersFile(const char* filePath, std::string* vertexShaderStri
     }
 }
 
-GLuint Shader::createOneShader(GLuint shaderType, const char* shaderString)
+GLuint Shader::CreateOneShader(GLuint shaderType, const char* shaderString)
 {
 
     GLint compilationSuccess;
@@ -65,7 +76,7 @@ GLuint Shader::createOneShader(GLuint shaderType, const char* shaderString)
     return shaderObject;
 }
 
-void Shader::createShaderProgram(const char* filePath)
+void Shader::GenerateShaders()
 {
     glDeleteProgram(m_Id);
     m_Id = glCreateProgram();
@@ -73,12 +84,12 @@ void Shader::createShaderProgram(const char* filePath)
     std::cout << "[INFO][SHADER]: Creating shaders..." << std::endl;
     std::string vertexShaderString;
     std::string fragmentShaderString;
-    readShadersFile(filePath, &vertexShaderString, &fragmentShaderString);
+    ReadShadersFile(m_ShadersFilePath, &vertexShaderString, &fragmentShaderString);
 
     GLchar errorLog;
     GLint compilationSuccess;
-    GLuint vertexShader = createOneShader(GL_VERTEX_SHADER, vertexShaderString.c_str());
-    GLuint fragmentShader = createOneShader(GL_FRAGMENT_SHADER, fragmentShaderString.c_str());
+    GLuint vertexShader = CreateOneShader(GL_VERTEX_SHADER, vertexShaderString.c_str());
+    GLuint fragmentShader = CreateOneShader(GL_FRAGMENT_SHADER, fragmentShaderString.c_str());
 
     glAttachShader(m_Id, vertexShader);
     glAttachShader(m_Id, fragmentShader);
@@ -88,13 +99,13 @@ void Shader::createShaderProgram(const char* filePath)
     glGetProgramiv(m_Id, GL_LINK_STATUS, &compilationSuccess);
     if (compilationSuccess == 0) {
         glGetProgramInfoLog(m_Id, sizeof(errorLog), NULL, &errorLog);
-        std::cerr << "[ERROR][SHADER]: Could not link shader program!\n\t" << 
+        std::cerr << "[ERROR][SHADER]: Could not link shader program!\n\t" <<
         errorLog << std::endl;
         return;
     }
 }
 
-GLuint Shader::getShaderProgram()
+GLuint Shader::GetShaderProgram() const
 {
     return m_Id;
 }

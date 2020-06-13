@@ -10,14 +10,20 @@
 class Shader
 {
 private:
-    GLuint m_Id;
-    void readShadersFile(const char* filePath, std::string* vertexShaderString, std::string* fragmentShaderString);
-    GLuint createOneShader(GLuint shaderType, const char* shaderString);
+    unsigned int m_Id;
+    const char* m_ShadersFilePath;
+    void ReadShadersFile(const char* filePath, std::string* vertexShaderString, std::string* fragmentShaderString);
+    GLuint CreateOneShader(GLuint shaderType, const char* shaderString);
 public:
-    Shader(const char* filePath);
+    Shader();
     ~Shader();
-    void createShaderProgram(const char* filePath);
-    GLuint getShaderProgram();
+
+    const char* GetShadersFilePath() const;
+    GLuint GetShaderProgram() const;
+
+    void SetShaderFilePath(const char* shaderFilePath);
+
+    void GenerateShaders();
     void On () const;
     void Off () const;
 };
