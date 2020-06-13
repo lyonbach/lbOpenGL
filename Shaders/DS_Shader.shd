@@ -30,7 +30,7 @@ vec3 vLightToVertexR; // reflected
 vec3 vVertexToCam;
 
 out vec4 diffuseColor;
-out vec4 specularColor;
+out float specularFactor;
 
 void main()
 {
@@ -45,7 +45,7 @@ void main()
     // The angle between each vertex normal and the vector from vertex to the current position of the light.
     // The dot product has also been clamped for the reason that the negative values need to be zero.
     // Though cosTheta is not the angle itself, it can be directly used as an intensity factor.
-    cosTheta = clamp(dot(normalize(vNormWS), normalize(uLightPosition - vPosWS)), 0, 1);
+    cosTheta = clamp(dot(normalize(vNormWS), normalize(uLightPosition - vPosWS)), 0.2, 1);
     diffuseColor = LightIntensity * MaterialDiffuseColor * uLightColor * cosTheta / (distance*distance);
 
     // We need the negative of this vector and find the reflection of it according to the plane which is 
@@ -55,13 +55,15 @@ void main()
 
     // Vector from light to the vertex
     vLightToVertex = normalize(vPosWS - uLightPosition); // V (original vector)
-    vLightToVertexR = vLightToVertex - 2 * dot(vLightToVertex, vNormWS) * vNormWS;
+    // vLightToVertexR = vLightToVertex - 2 * dot(vLightToVertex, vNormWS) * vNormWS;
+    vLightToVertexR = reflect(vLightToVertex, vNormWS);
 
     // Camera to vertex vector
     vVertexToCam = normalize(uCamPosition - vPosWS);  // We need to take the opposite of the vector.
-    
-    // Angle between two vectors
-    specularColor = vec4(clamp(dot(vLightToVertexR, vVertexToCam), 0, 1));
+   
+    // Specular factor 
+    specularFactor = clamp(dot(vLightToVertexR, vVertexToCam), 0, 1);
+    specularFactor = pow(specularFactor, 10);
 
     gl_Position = uP * uV * uM * vec4(vPos, 1.0);
     UVs = vUVs;
@@ -73,12 +75,12 @@ void main()
 uniform sampler2D textureSampler;
 in vec2 UVs;
 in vec4 diffuseColor;
-in vec4 specularColor;
+in float specularFactor;
+
+vec4 specularColor = vec4(1.0, .8, .5, 1.0);
 
 void main()
 {
-    // gl_FragColor = diffuseColor;
-    // gl_FragColor = specularColor;
-    gl_FragColor = (diffuseColor * texture(textureSampler, UVs)) + 2*specularColor*diffuseColor;
-    // gl_FragColor = texture(textureSampler, UVs);
+    specularColor *= vec4(specularFactor);
+    gl_FragColor = (diffuseColor * texture(textureSampler, UVs)) + specularColor;
 }
