@@ -1,0 +1,87 @@
+#Shader Vertex
+#version 330
+
+layout(location = 0) in vec3 vPos;
+layout(location = 1) in vec2 vUVs;
+layout(location = 2) in vec3 vNorm;
+
+// Uniform Variables
+uniform mat4 uM;
+uniform mat4 uV;
+uniform mat4 uP;
+
+uniform vec3 uLightPosition;
+uniform vec3 uCamPosition;
+
+// Passed Values Variables
+out vec2 UVs;
+
+// Variables for main.
+vec4 uLightColor = vec4(1.0, 1.0, 1.0, 1.0);
+vec4 MaterialDiffuseColor = vec4(0.750);
+
+float LightIntensity = 10.0;
+float cosTheta;
+float cosAlpha;
+
+vec3 vPosWS;  // Vertex Positions WorldSpace
+vec3 vNormWS;  // Normals WorldSpace
+vec3 vLightToVertex;
+vec3 vLightToVertexR; // reflected
+vec3 vVertexToCam;
+
+out vec4 diffuseColor;
+out float specularFactor;
+
+void main()
+{
+
+    // Object-Space to World-Space.
+    vPosWS = (uM * vec4(vPos, 1.0)).xyz;
+    vNormWS = (uM * vec4(vNorm, 1.0)).xyz;
+    
+    // Distance between each vertex and the light.
+    float distance = length(vPosWS - uLightPosition);
+
+    // The angle between each vertex normal and the vector from vertex to the current position of the light.
+    // The dot product has also been clamped for the reason that the negative values need to be zero.
+    // Though cosTheta is not the angle itself, it can be directly used as an intensity factor.
+    cosTheta = clamp(dot(normalize(vNormWS), normalize(uLightPosition - vPosWS)), 0.2, 1);
+    diffuseColor = LightIntensity * MaterialDiffuseColor * uLightColor * cosTheta / (distance*distance);
+
+    // We need the negative of this vector and find the reflection of it according to the plane which is 
+    // perpendicular to the vertex normal. In addition, we only need the angle so we can use normalized
+    // vectors in our calculations.
+    // Vp = V - 2 x (V . N ) x N
+
+    // Vector from light to the vertex
+    vLightToVertex = normalize(vPosWS - uLightPosition); // V (original vector)
+    // vLightToVertexR = vLightToVertex - 2 * dot(vLightToVertex, vNormWS) * vNormWS;
+    vLightToVertexR = reflect(vLightToVertex, vNormWS);
+
+    // Camera to vertex vector
+    vVertexToCam = normalize(uCamPosition - vPosWS);  // We need to take the opposite of the vector.
+   
+    // Specular factor 
+    specularFactor = clamp(dot(vLightToVertexR, vVertexToCam), 0, 1);
+    specularFactor = pow(specularFactor, 10);
+
+    gl_Position = uP * uV * uM * vec4(vPos, 1.0);
+    UVs = vUVs;
+}
+
+#Shader Fragment
+#version 330
+
+uniform sampler2D textureSampler;
+in vec2 UVs;
+in vec4 diffuseColor;
+in float specularFactor;
+
+vec4 specularColor = vec4(1.0, .8, .5, 1.0);
+
+void main()
+{
+    specularColor *= vec4(specularFactor);
+    gl_FragColor = (diffuseColor * texture(textureSampler, UVs)) + specularColor;
+}
