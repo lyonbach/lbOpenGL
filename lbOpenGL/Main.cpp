@@ -129,7 +129,7 @@ int main(int argc, char const *argv[])
     Shader diffuseShader(config.m_shadersFilePath.c_str());
     GLint m_location, v_location, p_location, lp_location, cp_location;
 
-    // Read Model From File
+    // Load Models
     ModelManager modelManager;
     modelManager.Push(config.m_modelPath.c_str());
     modelManager.Load();
@@ -142,10 +142,13 @@ int main(int argc, char const *argv[])
         vertexArrayObjects[i].Init(*md);
     }
 
-//    modelManager.~ModelManager();
+    modelManager.~ModelManager();
 
     // Generate Textures
-    Texture texture(config.m_textureSize[0], config.m_textureSize[1], helpers.loadTexture(config.m_texturePath.c_str()));
+    // Texture texture(config.m_textureSize[0], config.m_textureSize[1], helpers.loadTexture(config.m_texturePath.c_str()));
+    Texture texture;
+    texture.SetTexturePath(config.m_texturePath.c_str());
+    texture.LoadTexture();
 
     // Create Camera
     Camera camera(window);
@@ -170,7 +173,7 @@ int main(int argc, char const *argv[])
     glm::mat4 scale;
 
     float someVal = 5.0f;
-    glm::vec3 lightPos(0.0f);
+    glm::vec3 lightPos(2.0f, 2.0f, -2.0f);
     glm::vec3 camPos(0.0f);
 
     // Main Loop
@@ -190,43 +193,34 @@ int main(int argc, char const *argv[])
 
         diffuseShader.On();
 
-        for(int i = 0; i < 1; i++)
-        {
+        // Update light position
+        someVal += deltaTime / 2;
 
-            // Update light position
-            someVal += deltaTime / 2;
-            lightPos[0] = glm::cos(someVal) * 4;
-            lightPos[2] = glm::sin(someVal) * 4 ;
-            // lightPos[0] = 0.0f;
-            lightPos[1] = 2.0f;
-            // lightPos[2] = -5.0f;
-            // std::cout << "Ligth Pos:\n\t" << lightPos[0] << ", " << lightPos[1] << ", " << lightPos[2] << std::endl;
+        // Update camera position
+        camPos = camera.GetPosition();
 
-            // Update camera position
-            camPos = camera.GetPosition();
+        translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
+        rotate = glm::rotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        scale = glm::scale(glm::vec3(1.0f));
+        model = translate * rotate * scale;
+        // mvp = projection * view * model;  // This is now being done by the vertex shader.
 
-            translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
-            rotate = glm::rotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            scale = glm::scale(glm::vec3(1.0f));
-            model = translate * rotate * scale;
-            // mvp = projection * view * model;  // This is now being done by the vertex shader.
+        m_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_m);
+        v_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_v);
+        p_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_p);
+        lp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_lPosWS);
+        cp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_cPosWS);
 
-            m_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_m);
-            v_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_v);
-            p_location  = glGetUniformLocation(diffuseShader.getShaderProgram(), un_p);
-            lp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_lPosWS);
-            cp_location = glGetUniformLocation(diffuseShader.getShaderProgram(), un_cPosWS);
+        glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
+        glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(p_location, 1, GL_FALSE, &projection[0][0]);
+        glUniform3fv(lp_location, 1, &lightPos[0]);
+        glUniform3fv(cp_location, 1, &camPos[0]);
 
-            glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
-            glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);
-            glUniformMatrix4fv(p_location, 1, GL_FALSE, &projection[0][0]);
-            glUniform3fv(lp_location, 1, &lightPos[0]);
-            glUniform3fv(cp_location, 1, &camPos[0]);
+        vertexArrayObjects[0].On();
+        glDrawElements(GL_TRIANGLES, vertexArrayObjects[0].GetElementCount(), GL_UNSIGNED_INT, 0);
+        vertexArrayObjects[0].Off();
 
-            vertexArrayObjects[i].On();
-            glDrawElements(GL_TRIANGLES, vertexArrayObjects[i].GetElementCount(), GL_UNSIGNED_INT, 0);
-
-        }
 
         diffuseShader.Off();
         // Swap front and back buffers

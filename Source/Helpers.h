@@ -2,21 +2,9 @@
 
 #include "GL/glew.h"
 #include <vector>
-
+#include "Containers.h"
 // Textures
 #define BMP "bmp"
-
-struct Configuration
-{
-    int m_windowWidth;
-    int m_windowHeight;
-    std::string m_windowTitle;
-    std::string m_shadersFilePath;
-    std::string m_texturePath;
-    unsigned int m_textureSize[2];
-    std::string m_modelPath;
-    bool ok = false;
-};
 
 class Helpers
 {
