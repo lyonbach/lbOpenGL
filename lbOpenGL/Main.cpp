@@ -9,6 +9,8 @@
 #include "GLM/gtx/string_cast.hpp"
 #include "GLM/gtc/type_ptr.hpp"
 
+#include "Definitions.h"
+#include "Constants.h"
 #include "Helpers.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -121,11 +123,6 @@ int main(int argc, char const *argv[])
     glEnable(GL_CULL_FACE);
 
     // Create Shaders
-    const char* un_m = "uM";
-    const char* un_v = "uV";
-    const char* un_p = "uP";
-    const char* un_lPosWS = "uLightPosition";
-    const char* un_cPosWS = "uCamPosition";
     Shader shader;
     shader.SetShaderFilePath(config.m_shadersFilePath.c_str());
     shader.GenerateShaders();
@@ -205,13 +202,12 @@ int main(int argc, char const *argv[])
         rotate = glm::rotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         scale = glm::scale(glm::vec3(1.0f));
         model = translate * rotate * scale;
-        // mvp = projection * view * model;  // This is now being done by the vertex shader.
 
-        m_location  = glGetUniformLocation(shader.GetShaderProgram(), un_m);
-        v_location  = glGetUniformLocation(shader.GetShaderProgram(), un_v);
-        p_location  = glGetUniformLocation(shader.GetShaderProgram(), un_p);
-        lp_location = glGetUniformLocation(shader.GetShaderProgram(), un_lPosWS);
-        cp_location = glGetUniformLocation(shader.GetShaderProgram(), un_cPosWS);
+        m_location  = glGetUniformLocation(shader.GetShaderProgram(), uniform_model_string);
+        v_location  = glGetUniformLocation(shader.GetShaderProgram(), uniform_view_string);
+        p_location  = glGetUniformLocation(shader.GetShaderProgram(), uniform_projection_string);
+        lp_location = glGetUniformLocation(shader.GetShaderProgram(), uniform_lightPositionWS);
+        cp_location = glGetUniformLocation(shader.GetShaderProgram(), uniform_cameraPositionWS);
 
         glUniformMatrix4fv(m_location, 1, GL_FALSE, &model[0][0]);
         glUniformMatrix4fv(v_location, 1, GL_FALSE, &view[0][0]);

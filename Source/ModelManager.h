@@ -8,11 +8,6 @@
 
 #include "OBJLoader.h"
 
-#ifndef OBJ
-#define OBJ "obj"
-#endif
-
-
 class ModelManager
 {
     private:
