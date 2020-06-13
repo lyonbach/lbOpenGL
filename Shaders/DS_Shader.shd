@@ -12,6 +12,7 @@ uniform mat4 uP;
 
 uniform vec3 uLightPosition;
 uniform vec3 uCamPosition;
+uniform float uLightIntensity;
 
 // Passed Values Variables
 out vec2 UVs;
@@ -19,7 +20,6 @@ out vec2 UVs;
 // Variables for main.
 vec4 uLightColor = vec4(1.0, 1.0, 1.0, 1.0);
 vec4 MaterialDiffuseColor = vec4(0.750);
-float LightIntensity = 10.0;
 float cosTheta;
 float cosAlpha;
 
@@ -46,7 +46,7 @@ void main()
     // The dot product has also been clamped for the reason that the negative values need to be zero.
     // Though cosTheta is not the angle itself, it can be directly used as an intensity factor.
     cosTheta = clamp(dot(normalize(vNormWS), normalize(uLightPosition - vPosWS)), 0.2, 1);
-    diffuseColor = LightIntensity * MaterialDiffuseColor * uLightColor * cosTheta / (distance*distance);
+    diffuseColor = uLightIntensity * MaterialDiffuseColor * uLightColor * cosTheta / (distance*distance);
 
     // We need the negative of this vector and find the reflection of it according to the plane which is 
     // perpendicular to the vertex normal. In addition, we only need the angle so we can use normalized

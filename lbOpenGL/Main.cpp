@@ -21,6 +21,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Renderer.h"
+#include "PointLight.h"
 #include "Time.h"
 
 const char* configPath = "/home/lyonbach/Repositories/lbOpenGL/Config/Main.cfg";
@@ -161,9 +162,14 @@ int main(int argc, char const *argv[])
     camera.SetPosition(glm::vec3(0.0f, 0.0f, -6.0f));
     cameras.push_back(camera);
 
+    // Create Lights
+    PointLight light;
+    light.SetPosition(glm::vec3(1.0f, 3.0f, -2.0f));
+    light.SetIntensity(10.0f);
+
     // Setup Renderer
     Renderer renderer(window);
-    renderer.Push({vertexArrayObjects[0], shaders[0], textures[0]});
+    renderer.Push({vertexArrayObjects[0], shaders[0], textures[0], light});
     renderer.SetCamera(&camera);
 
     // Cleanup

@@ -60,9 +60,6 @@ void Renderer::Render(float deltaTime)
     // scale = glm::scale(glm::vec3(1.0f));
     // model = translate * rotate * scale;
 
-    /*Temporary*/
-    glm::vec3 lightPos(2.0f, 2.0f, -2.0f);
-
     for(int i = 0; i < modelCount; i++)
     {
         Model model = m_Models.at(i);
@@ -75,9 +72,10 @@ void Renderer::Render(float deltaTime)
         SetUniformMatrix4fv(shaderProgram, uniform_view_string, &m_ViewMatrix[0][0]);
         SetUniformMatrix4fv(shaderProgram, uniform_projection_string, &m_ProjectionMatrix[0][0]);
 
-        SetUnifromVector3fv(shaderProgram, uniform_lightPositionWS, &glm::vec3(1.0f)[0]);
+        SetUnifromVector3fv(shaderProgram, uniform_lightPositionWS, &model.m_Light.GetPosition()[0]);
         // TODO: Instead of setting the uniform get inverse of the view matrix within the shader
         SetUnifromVector3fv(shaderProgram, uniform_cameraPositionWS, &m_Camera->GetPosition()[0]);
+        SetUniformScalar1f(shaderProgram, uniform_lightIntensity, model.m_Light.GetIntensity());
 
         glDrawElements(GL_TRIANGLES, model.m_VertexArrayObject.GetElementCount(), GL_UNSIGNED_INT, 0);
 
@@ -103,4 +101,10 @@ void Renderer::SetUnifromVector3fv(GLuint& shaderProgram, const char* uniformNam
 {
     GLuint uniformLocation = glGetUniformLocation(shaderProgram, uniformName);
     glUniform3fv(uniformLocation, 1, &uniformValue[0]);
+}
+
+void Renderer::SetUniformScalar1f(GLuint& shaderProgram, const char* uniformName, const GLfloat uniformValue)
+{
+    GLuint uniformLocation = glGetUniformLocation(shaderProgram, uniformName);
+    glUniform1f(uniformLocation, uniformValue);
 }

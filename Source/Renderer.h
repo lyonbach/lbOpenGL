@@ -10,6 +10,7 @@
 #include "Containers.h"
 #include "Constants.h"
 #include "Camera.h"
+#include "Light.h"
 
 
 struct Model
@@ -17,6 +18,7 @@ struct Model
     VertexArrayObject& m_VertexArrayObject;
     Shader& m_Shader;
     Texture& m_Texture;
+    Light& m_Light;
 };
 
 class Renderer
@@ -46,4 +48,5 @@ public:
     void Render(float deltaTime);
     void SetUniformMatrix4fv(GLuint& shaderProgram, const char* uniformName, const GLfloat* uniformValue);
     void SetUnifromVector3fv(GLuint& shaderProgram, const char* uniformName, const GLfloat* uniformValue);
+    void SetUniformScalar1f (GLuint& shaderProgram, const char* uniformName, const GLfloat uniformValue);
 };
