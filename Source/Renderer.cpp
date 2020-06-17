@@ -78,6 +78,7 @@ void Renderer::Render(float deltaTime)
         SetUniformScalar1f(shaderProgram, uniform_lightIntensity, model.m_Light.GetIntensity());
 
         glDrawElements(GL_TRIANGLES, model.m_VertexArrayObject.GetElementCount(), GL_UNSIGNED_INT, 0);
+	    // glDrawElements(GL_LINES, model.m_VertexArrayObject.GetElementCount(), GL_UNSIGNED_INT, 0);
 
         model.m_VertexArrayObject.Off();
         model.m_Texture.Off();
