@@ -5,17 +5,19 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <filesystem>
 
 #include "Helpers.h"
 
-
-Helpers::Helpers(const char* filePath)
-    : m_configurationsFilePath(filePath)
+Helpers::Helpers()
 {
+    // m_configurationsFilePath = (std::filesystem::current_path() / "Config" / "Main.cfg").c_str();
+    m_configurationsFilePath = "/media/lyonbach/work/Projects/lbOpenGL/Config/Main.cfg";
 }
 
 void Helpers::getConfiguration(Configuration* config)
 {
+    std::cout << "Configurations file path :\n\t" << m_configurationsFilePath << std::endl;
 
     std::ifstream stream(m_configurationsFilePath);
 

@@ -50,7 +50,7 @@ void Camera::UpdateView(glm::mat4* view, float deltaTime)
     // glfwSetCursorPos(m_Window, m_ScreenWidth/2, m_ScreenHeight/2);
     // Update orientations.
     horizontalAngle -= mouseSpeed * deltaTime * float(mouseX);
-    verticalAngle   += mouseSpeed * deltaTime * float(mouseY);
+    verticalAngle   -= mouseSpeed * deltaTime * float(mouseY);
 
     // Convert from spherical coords to rectangular coordinates.
     m_FrontVector = glm::vec3(cos(verticalAngle) * sin(horizontalAngle),

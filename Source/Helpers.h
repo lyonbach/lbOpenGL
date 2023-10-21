@@ -13,7 +13,7 @@ class Helpers
         std::string getFileExtension(const char* filePath) const;
         GLuint* loadBMP(const char* filePath) const;
     public:
-        Helpers(const char* filePath);
+        Helpers();
         void getConfiguration(Configuration* config);
         GLuint* loadTexture(const char* filePath) const;
 };

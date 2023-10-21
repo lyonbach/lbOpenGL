@@ -38,6 +38,7 @@ void Shader::ReadShadersFile(const char* filePath, std::string* vertexShaderStri
             if (line.find("Vertex") != std::string::npos)
             {
                 current = vertexShaderString;
+                std::cout << current << std::endl;
                 std::cout << "[DEBUG][SHADER]: Filling vertex shader string." << std::endl;
             }
             else if (line.find("Fragment") != std::string::npos)
