@@ -10,6 +10,7 @@ Renderer::~Renderer()
 {
     m_Models.clear();
     m_Models.shrink_to_fit();
+
 }
 
 Camera* Renderer::GetCamera() const
@@ -55,10 +56,6 @@ void Renderer::Render(float deltaTime)
     // std::cout << "[DEBUG][RENDERER]: Total " << modelCount << " object(s) will be rendered." << std::endl;
    
     m_Camera->UpdateView(&m_ViewMatrix, m_DeltaTime);
-    // translate = glm::translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    // rotate = glm::rotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // scale = glm::scale(glm::vec3(1.0f));
-    // model = translate * rotate * scale;
 
     for(int i = 0; i < modelCount; i++)
     {
